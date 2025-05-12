@@ -1,8 +1,6 @@
 package com.inventory.inventoryManagement.service.impl;
 
-import com.inventory.inventoryManagement.entities.PromoCode;
 import com.inventory.inventoryManagement.entities.UserType;
-import com.inventory.inventoryManagement.exceptions.PromoCodeNotFoundException;
 import com.inventory.inventoryManagement.exceptions.UserTypeNotFoundException;
 import com.inventory.inventoryManagement.repo.UserTypeRepository;
 import com.inventory.inventoryManagement.service.UserTypeService;
