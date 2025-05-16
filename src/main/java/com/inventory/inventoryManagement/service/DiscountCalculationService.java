@@ -5,5 +5,5 @@ import com.inventory.inventoryManagement.dtos.ProductInfo;
 
 public interface DiscountCalculationService {
 
-   ProductDiscountInfo calculateDiscount(ProductInfo productInfo);
+   ProductDiscountInfo calculateDiscount(ProductInfo productInfo,String type);
 }
