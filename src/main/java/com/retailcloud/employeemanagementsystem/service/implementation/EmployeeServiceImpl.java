@@ -1,7 +1,10 @@
 package com.retailcloud.employeemanagementsystem.service.implementation;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import com.retailcloud.employeemanagementsystem.dto.EmployeeNameIdDTO;
+import com.retailcloud.employeemanagementsystem.mapper.EmployeeMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -12,6 +15,9 @@ import com.retailcloud.employeemanagementsystem.entity.Employee;
 import com.retailcloud.employeemanagementsystem.repository.DepartmentRepository;
 import com.retailcloud.employeemanagementsystem.repository.EmployeeRepository;
 import com.retailcloud.employeemanagementsystem.service.EmployeeService;
+
+import static com.retailcloud.employeemanagementsystem.mapper.EmployeeMapper.toDTO;
+import static com.retailcloud.employeemanagementsystem.mapper.EmployeeMapper.toEntity;
 
 @Service
 @Transactional
@@ -28,19 +34,45 @@ public class EmployeeServiceImpl implements EmployeeService{
     }
     @Override
     public EmployeeDTO createEmployee(EmployeeDTO dto) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createEmployee'");
+
+       Employee employee = toEntity(dto);
+
+       employee = employeeRepository.save(employee);
+
+       return toDTO(employee);
     }
 
     @Override
     public EmployeeDTO updateEmployee(Long id, EmployeeDTO dto) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateEmployee'");
+        Employee emp = employeeRepository.findById(id).orElseThrow();
+
+        if (dto.getName() != null) {
+            emp.setName(dto.getName());
+        }
+        if (dto.getDateOfBirth() != null) {
+            emp.setDateOfBirth(dto.getDateOfBirth());
+        }
+        if (dto.getSalary() != null) {
+            emp.setSalary(dto.getSalary());
+        }
+        if (dto.getAddress() != null) {
+            emp.setAddress(dto.getAddress());
+        }
+        if (dto.getRole() != null) {
+            emp.setRole(dto.getRole());
+        }
+        if (dto.getJoiningDate() != null) {
+            emp.setJoiningDate(dto.getJoiningDate());
+        }
+        if (dto.getYearlyBonusPercentage() != null) {
+            emp.setYearlyBonusPercentage(dto.getYearlyBonusPercentage());
+        }
+        return toDTO(employeeRepository.save(emp));
     }
 
     @Override
     public EmployeeDTO updateEmployeeDepartment(Long id, Long deptId) {
-         Employee emp = employeeRepository.findById(id).orElseThrow();
+        Employee emp = employeeRepository.findById(id).orElseThrow();
         Department dept = departmentRepository.findById(deptId).orElseThrow();
         emp.setDepartment(dept);
         return toDTO(employeeRepository.save(emp));
@@ -48,14 +80,21 @@ public class EmployeeServiceImpl implements EmployeeService{
 
     @Override
     public Page<EmployeeDTO> getAllEmployees(Pageable pageable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllEmployees'");
+        return employeeRepository.findAll(pageable).map(EmployeeMapper::toDTO);
+
     }
 
     @Override
-    public List<EmployeeDTO> getEmployeeNameAndIdList() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getEmployeeNameAndIdList'");
+    public List<EmployeeNameIdDTO> getEmployeeNameAndIdList() {
+        return employeeRepository.findAllByOrderByNameAsc()
+                .stream()
+                .map(e -> {
+                    EmployeeNameIdDTO dto = new EmployeeNameIdDTO();
+                    dto.setId(e.getId());
+                    dto.setName(e.getName());
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
     
 }

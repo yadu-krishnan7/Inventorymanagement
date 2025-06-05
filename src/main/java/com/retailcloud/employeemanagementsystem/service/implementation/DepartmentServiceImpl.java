@@ -1,49 +1,86 @@
 package com.retailcloud.employeemanagementsystem.service.implementation;
 
 
+import com.retailcloud.employeemanagementsystem.dto.DepartmentDTO;
+import com.retailcloud.employeemanagementsystem.dto.EmployeeDTO;
+import com.retailcloud.employeemanagementsystem.entity.Department;
+import com.retailcloud.employeemanagementsystem.entity.Employee;
+import com.retailcloud.employeemanagementsystem.mapper.DepartmentMapper;
+import com.retailcloud.employeemanagementsystem.repository.DepartmentRepository;
+import com.retailcloud.employeemanagementsystem.repository.EmployeeRepository;
+import com.retailcloud.employeemanagementsystem.service.DepartmentService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.retailcloud.employeemanagementsystem.dto.DepartmentDTO;
-import com.retailcloud.employeemanagementsystem.repository.DepartmentRepository;
-import com.retailcloud.employeemanagementsystem.service.DepartmentService;
+import java.util.List;
 
+import static com.retailcloud.employeemanagementsystem.mapper.DepartmentMapper.toDTO;
+
+@Service
+@Transactional
 public class DepartmentServiceImpl implements DepartmentService {
 
-    private final DepartmentRepository departmentRepository; 
+    private final DepartmentRepository departmentRepository;
 
-    public DepartmentServiceImpl(DepartmentRepository departmentRepository) {
+    private final EmployeeRepository employeeRepository;
+
+    public DepartmentServiceImpl(DepartmentRepository departmentRepository, EmployeeRepository employeeRepository) {
         this.departmentRepository = departmentRepository;
+        this.employeeRepository = employeeRepository;
     }
 
-    @Override
     public DepartmentDTO addDepartment(DepartmentDTO dto) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'addDepartment'");
+        Department dept = new Department();
+        dept.setName(dto.getName());
+        dept.setCreationDate(dto.getCreationDate());
+        if (dto.getDepartmentHeadId() != null) {
+            dept.setDepartmentHead(employeeRepository.findById(dto.getDepartmentHeadId()).orElse(null));
+        }
+        return toDTO(departmentRepository.save(dept));
     }
 
     @Override
     public String deleteDepartment(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteDepartment'");
+        List<Employee> assigned = employeeRepository.findByDepartmentId(id);
+        if (!assigned.isEmpty()) {
+            return "Cannot delete department. Employees are assigned.";
+        }
+        departmentRepository.deleteById(id);
+        return "Department deleted successfully.";
     }
 
     @Override
     public DepartmentDTO updateDepartment(Long id, DepartmentDTO dto) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateDepartment'");
+        Department dept = departmentRepository.findById(id).orElseThrow();
+        dept.setName(dto.getName());
+        dept.setCreationDate(dto.getCreationDate());
+        if (dto.getDepartmentHeadId() != null) {
+            dept.setDepartmentHead(employeeRepository.findById(dto.getDepartmentHeadId()).orElse(null));
+        }
+        return toDTO(departmentRepository.save(dept));
     }
 
     @Override
     public Page<DepartmentDTO> getAllDepartments(Pageable pageable) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAllDepartments'");
+        return departmentRepository.findAll(pageable).map(DepartmentMapper::toDTO);
     }
 
     @Override
     public DepartmentDTO getDepartmentWithEmployees(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getDepartmentWithEmployees'");
+        Department dept = departmentRepository.findById(id).orElseThrow();
+        DepartmentDTO dto = toDTO(dept);
+        List<EmployeeDTO> empList = employeeRepository.findByDepartmentId(id)
+                .stream()
+                .map(e -> {
+                    EmployeeDTO edto = new EmployeeDTO();
+                    edto.setId(e.getId());
+                    edto.setName(e.getName());
+                    return edto;
+                }).toList();
+        dto.setEmployeeDTOS(empList);
+        return dto;
     }
 
        

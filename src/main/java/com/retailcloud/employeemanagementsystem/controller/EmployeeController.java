@@ -2,6 +2,7 @@ package com.retailcloud.employeemanagementsystem.controller;
 
 import java.util.List;
 
+import com.retailcloud.employeemanagementsystem.dto.EmployeeNameIdDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,7 +49,7 @@ public class EmployeeController {
     }
 
     @GetMapping(params = "lookup=true")
-    public List<EmployeeDTO> getEmployeeNamesAndIds() {
+    public List<EmployeeNameIdDTO> getEmployeeNamesAndIds() {
         return employeeService.getEmployeeNameAndIdList();
     }  
 }

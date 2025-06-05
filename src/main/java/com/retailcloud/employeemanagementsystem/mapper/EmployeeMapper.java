@@ -1,6 +1,7 @@
 package com.retailcloud.employeemanagementsystem.mapper;
 
 import com.retailcloud.employeemanagementsystem.dto.EmployeeDTO;
+import com.retailcloud.employeemanagementsystem.entity.Department;
 import com.retailcloud.employeemanagementsystem.entity.Employee;
 
 public class EmployeeMapper {
@@ -25,5 +26,32 @@ public class EmployeeMapper {
         }
         return dto;
     }
-    
+    public static Employee toEntity(EmployeeDTO dto) {
+        Employee employee = new Employee();
+        employee.setId(dto.getId());
+        employee.setName(dto.getName());
+        employee.setDateOfBirth(dto.getDateOfBirth());
+        employee.setSalary(dto.getSalary());
+        employee.setAddress(dto.getAddress());
+        employee.setRole(dto.getRole());
+        employee.setJoiningDate(dto.getJoiningDate());
+        employee.setYearlyBonusPercentage(dto.getYearlyBonusPercentage());
+
+        if (dto.getDepartmentId() != null) {
+            Department department = new Department();
+            department.setId(dto.getDepartmentId());
+            department.setName(dto.getDepartmentName()); // Optional: Usually only ID is needed to set relationship
+            employee.setDepartment(department);
+        }
+
+        if (dto.getReportingManagerId() != null) {
+            Employee manager = new Employee();
+            manager.setId(dto.getReportingManagerId());
+            manager.setName(dto.getReportingManagerName()); // Optional: Usually only ID is needed
+            employee.setReportingManager(manager);
+        }
+
+        return employee;
+    }
+
 }
